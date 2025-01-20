@@ -1,0 +1,39 @@
+name: Deploy to gh-pages
+
+on:
+  push:
+    branches:
+      - master  # 触发分支
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: master  # 检出master分支
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "23"  # Node.js版本，根据需要调整
+          cache: "pnpm"       # 启用pnpm缓存
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build project
+        run: pnpm build
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4  # 使用peaceiris/actions-gh-pages部署
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # 使用GitHub Token
+          publish_dir: ./dist                   # dist目录
+          publish_branch: gh-pages              # 目标分支
+          full_commit_message: ${{ github.event.head_commit.message }}  # 提交信息
+
